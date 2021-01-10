@@ -1,6 +1,6 @@
 Param(
     [Parameter(Position=0,mandatory=$true)]
-    [String]$projectRoothPath,
+    [String]$applicationRoothPath,
 
     $viewsRootPath = "Views",
     $featureRootPath = "src\Feature"
@@ -9,11 +9,25 @@ Param(
 . $PSScriptRoot\CrossFeatureViewReferences.ps1
 . $PSScriptRoot\CrossFeatureControllerReferences.ps1
 
-Set-Location $projectRoothPath
+# ---------------
+
+$absoluteFeatureRootPath = $applicationRoothPath + "\" + $featureRootPath
+
+if(!(Test-Path -Path $applicationRoothPath))
+{
+    Write-Host ("Application root path is invalid: " + $applicationRootPath) -ForegroundColor Red
+    Exit 1
+}
+
+if(!(Test-Path -Path $absoluteFeatureRootPath))
+{
+    Write-Host ("Feature root path is invalid: " + $absoluteFeatureRootPath) -ForegroundColor Red
+    Exit 1
+}
 
 # ---------------
 
-$absoluteFeatureRootPath = $projectRoothPath + "\" + $featureRootPath
+Set-Location $applicationRoothPath
 
 $featureViewFiles = Get-ChildItem -Path . -Filter "*.cshtml" -Recurse | 
                     Where { $_.FullName -like $absoluteFeatureRootPath+ "\*" }
