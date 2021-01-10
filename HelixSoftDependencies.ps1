@@ -6,8 +6,9 @@ Param(
     $featureRootPath = "src\Feature"
 )
 
-. $PSScriptRoot\CrossFeatureViewReferences.ps1
-. $PSScriptRoot\CrossFeatureControllerReferences.ps1
+. $PSScriptRoot\Tasks\SharedFunctions.ps1
+. $PSScriptRoot\Tasks\ViewsReferencingViews.ps1
+. $PSScriptRoot\Tasks\ViewsReferencingControllers.ps1
 
 # ---------------
 
