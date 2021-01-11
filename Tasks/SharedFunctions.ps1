@@ -19,3 +19,14 @@ function Get-FeatureName([System.IO.FileInfo]$file, [System.String]$featureRootP
     $firstFolderEndIndex = $featurePath.IndexOf("\")   
     return $featurePath.Substring(0,$firstFolderEndIndex)
 }
+
+function Get-FeatureViewFiles()
+{
+    Param(
+        [String]$applicationRootPath,
+        [String]$featureRootPath
+    )
+
+    return Get-ChildItem -Path $applicationRootPath -Filter "*.cshtml" -Recurse | 
+           Where { $_.FullName -like ($applicationRootPath + "\" + $featureRootPath + "\*") }
+}

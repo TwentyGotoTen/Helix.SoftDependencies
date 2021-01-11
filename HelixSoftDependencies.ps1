@@ -1,6 +1,6 @@
 Param(
     [Parameter(Position=0,mandatory=$true)]
-    [String]$applicationRoothPath,
+    [String]$applicationRootPath,
 
     $viewsRootPath = "Views",
     $featureRootPath = "src\Feature"
@@ -12,29 +12,21 @@ Param(
 
 # ---------------
 
-$absoluteFeatureRootPath = $applicationRoothPath + "\" + $featureRootPath
-
-if(!(Test-Path -Path $applicationRoothPath))
+if(!(Test-Path -Path $applicationRootPath))
 {
     Write-Host ("Application root path is invalid: " + $applicationRootPath) -ForegroundColor Red
     Exit 1
 }
 
-if(!(Test-Path -Path $absoluteFeatureRootPath))
+if(!(Test-Path -Path ($applicationRootPath + "\" + $featureRootPath)))
 {
-    Write-Host ("Feature root path is invalid: " + $absoluteFeatureRootPath) -ForegroundColor Red
+    Write-Host ("Feature root path is invalid: " + $featureRootPath) -ForegroundColor Red
     Exit 1
 }
 
 # ---------------
 
-Set-Location $applicationRoothPath
-
-$featureViewFiles = Get-ChildItem -Path . -Filter "*.cshtml" -Recurse | 
-                    Where { $_.FullName -like $absoluteFeatureRootPath+ "\*" }
-
-$viewResults = Get-ViewsReferencedByViewsInOtherFeatures $featureViewFiles $viewsRootPath $featureRootPath
-
+$viewResults = Get-ViewsReferencingViews $applicationRootPath $viewsRootPath $featureRootPath
 
 If(($viewResults | Measure-Object).Count -gt 0)
 {
@@ -48,11 +40,7 @@ Else
 
 # --------------------
 
-$controllerFiles = Get-ChildItem -Path . -Filter "*Controller.cs" -Recurse | 
-                   Where {  $_.FullName -like "*\Feature\*" }
-
-
-$controllerResults = Get-ControllersReferencedByViewsInOtherFeatures $featureViewFiles $controllerFiles $viewsRootPath $featureRootPath
+$controllerResults = Get-ViewsReferencingControllers $applicationRootPath $viewsRootPath $featureRootPath
 
 If(($controllerResults | Measure-Object).Count -gt 0)
 {
@@ -63,5 +51,3 @@ Else
 {
     Write-Host -ForegroundColor Green "No views reference controllers in other features."
 }
-
-

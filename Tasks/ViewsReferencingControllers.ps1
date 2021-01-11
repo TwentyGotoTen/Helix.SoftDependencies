@@ -1,4 +1,4 @@
-function Get-CrossFeatureControllerReferences
+function Get-ControllersReferencedByViewsInOtherFeatures
 {
     param (
         [System.IO.FileInfo]$viewFile, 
@@ -22,17 +22,22 @@ function Get-CrossFeatureControllerReferences
     return ($foundControllerReferences.Name) 
 }
 
-function Get-ControllersReferencedByViewsInOtherFeatures
+function Get-ViewsReferencingControllers
 {
     param (
-        [System.IO.FileInfo[]]$viewFiles, 
-        [System.IO.FileInfo[]]$controllers, 
+        [String]$applicationRootPath,
         [String]$viewsRootPath, 
         [String]$featureRootPath
     )
 
+    $featureViewFiles = Get-FeatureViewFiles $applicationRootPath $featureRootPath
+
+    $controllerFiles = Get-ChildItem -Path $applicationRootPath -Filter "*Controller.cs" -Recurse | 
+                       Where {  $_.FullName -like "*\Feature\*" }
+
+
     $results = $featureViewFiles | Select -Property  @{ Name="View"; Expression= { (Get-ViewsPath $_ $viewsRootPath) }}, 
-                                                     @{ Name="ReferencedControllers"; Expression= {  (Get-CrossFeatureControllerReferences $_ $controllerFiles $featureRootPath) -join "," } }  | 
+                                                     @{ Name="ReferencedControllers"; Expression= {  (Get-ControllersReferencedByViewsInOtherFeatures $_ $controllerFiles $featureRootPath) -join "," } }  | 
                                             Where { $_.ReferencedControllers -ne ""} 
 
     return $results;

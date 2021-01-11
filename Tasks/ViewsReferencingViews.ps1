@@ -1,4 +1,4 @@
-function Get-CrossFeatureViewReferences
+function Get-ViewsReferencedByViewsInOtherFeatures
 {
     Param (
         [System.IO.FileInfo]$viewFileToRead,  
@@ -19,16 +19,18 @@ function Get-CrossFeatureViewReferences
     return ($foundPaths.ViewsPath) 
 }
 
-function Get-ViewsReferencedByViewsInOtherFeatures
+function Get-ViewsReferencingViews
 {
     param (
-        [System.IO.FileInfo[]]$viewFiles, 
-        [String] $viewsRootPath,
-        [String] $featureRootPath
+        [String]$applicationRootPath, 
+        [String]$viewsRootPath,
+        [String]$featureRootPath
     )
 
+    $viewFiles = Get-FeatureViewFiles $applicationRootPath $featureRootPath
+
     $results = $viewFiles | Select -Property  @{ Name="View"; Expression= { (Get-ViewsPath $_ $viewsRootPath) }}, 
-                                              @{ Name="ReferencedViews"; Expression= {  (Get-CrossFeatureViewReferences $_ $viewFiles $featureRootPath) -join "," }  } |
+                                              @{ Name="ReferencedViews"; Expression= {  (Get-ViewsReferencedByViewsInOtherFeatures $_ $viewFiles $featureRootPath) -join "," }  } |
                             Where { $_.ReferencedViews -ne ""} 
 
     return $results
