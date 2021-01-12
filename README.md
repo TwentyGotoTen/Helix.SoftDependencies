@@ -16,5 +16,5 @@ Run **HelixSoftDependencies.ps1** passing the absolute root path of the Helix ap
 - *projectConfigPath* (Default 'App_Config\Include\Feature') 
 
 ## Notes
-The script assumes you have a ["standard" Helix solution structure](https://github.com/Sitecore/Helix.Examples/tree/master/examples/helix-basic-tds) using a project per module.
-The config/namespace check assumes that all the types within a module use the default namespace.
+- The script assumes you have a ["standard" Helix solution structure](https://github.com/Sitecore/Helix.Examples/tree/master/examples/helix-basic-tds) using a project per module.
+- The config/namespace check assumes that all the types within a module use the default namespace.
