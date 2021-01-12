@@ -2,13 +2,15 @@ Param(
     [Parameter(Position=0,mandatory=$true)]
     [String]$applicationRootPath,
 
-    $viewsRootPath = "Views",
-    $featureRootPath = "src\Feature"
+    [String]$featureRootPath = "src\Feature",
+    [String]$projectViewsPath = "Views",
+    [String]$projectConfigPath = "App_Config\Include\Feature"
 )
 
 . $PSScriptRoot\Tasks\SharedFunctions.ps1
 . $PSScriptRoot\Tasks\ViewsReferencingViews.ps1
 . $PSScriptRoot\Tasks\ViewsReferencingControllers.ps1
+. $PSScriptRoot\Tasks\ConfigsReferencingNamespaces.ps1
 
 # ---------------
 
@@ -26,7 +28,7 @@ if(!(Test-Path -Path ($applicationRootPath + "\" + $featureRootPath)))
 
 # ---------------
 
-$viewResults = Get-ViewsReferencingViews $applicationRootPath $viewsRootPath $featureRootPath
+$viewResults = Get-ViewsReferencingViews $applicationRootPath $projectViewsPath $featureRootPath
 
 If(($viewResults | Measure-Object).Count -gt 0)
 {
@@ -40,7 +42,7 @@ Else
 
 # --------------------
 
-$controllerResults = Get-ViewsReferencingControllers $applicationRootPath $viewsRootPath $featureRootPath
+$controllerResults = Get-ViewsReferencingControllers $applicationRootPath $projectViewsPath $featureRootPath
 
 If(($controllerResults | Measure-Object).Count -gt 0)
 {
@@ -50,4 +52,18 @@ If(($controllerResults | Measure-Object).Count -gt 0)
 Else
 {
     Write-Host -ForegroundColor Green "No views reference controllers in other features."
+}
+
+# --------------------
+
+$configResults = Get-ConfigsReferencingNamespaces $applicationRootPath $featureRootPath $projectConfigPath 
+
+If(($configResults | Measure-Object).Count -gt 0)
+{
+    Write-Host -ForegroundColor Red "Found configs referencing namespaces in other features."
+    $configResults | Format-Table | Out-String | Write-Host
+}
+Else
+{
+    Write-Host -ForegroundColor Green "No configs reference namespaces in other features."
 }
